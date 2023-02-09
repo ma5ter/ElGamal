@@ -9,7 +9,8 @@ void elgamal_keygen(elgamal_keys_t *keys, int higher, uint64_t (*random64)(void)
 			keys->p = random_prime_u64(higher, random64);
 
 			// primitive root g modulo p
-			keys->g = prime_find_primitive_root_u64(keys->p);
+			// using other than minimal primitive root
+			keys->g = prime_find_primitive_root_u64(keys->p, random64() & 0xFFF0, 0xFFFF);
 		} while (!keys->g);
 	}
 

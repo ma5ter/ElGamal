@@ -42,8 +42,10 @@ size_t find_prime_factors_u64(uint64_t x, uint64_t *last_factor, uint32_t *facto
 
 /// Returns minimal primitive root modulo for a PRIME(!) mod
 /// \param mod - prime unsigned 64-bit number
+/// \param min - first root to start search from
+/// \param max - last root to stop search
 /// \return primitive root
-uint32_t prime_find_primitive_root_u64(uint64_t mod);
+uint32_t prime_find_primitive_root_u64(uint64_t mod, uint32_t min, uint32_t max);
 
 /// A straightforward algorithm to check if a 64-bit unsigned integer is a prime
 /// number is the trial division method, where you divide the number by all ints

@@ -82,7 +82,7 @@ size_t find_prime_factors_u64(uint64_t x, uint64_t *last_factor, uint32_t *facto
 	return factors_found;
 }
 
-uint32_t prime_find_primitive_root_u64(uint64_t mod) {
+uint32_t prime_find_primitive_root_u64(const uint64_t mod, const uint32_t min, const uint32_t max) {
 	// the only even prime has root of 1
 	if (2 == mod) return 1;
 
@@ -97,14 +97,17 @@ uint32_t prime_find_primitive_root_u64(uint64_t mod) {
 
 	// then check all possible roots starting from 2 and excluding 4
 	// limit counter to 32-bitter for speed on 32-bit platforms
-	uint32_t limit = mod > UINT32_MAX ? UINT32_MAX : (uint32_t)mod;
-	for (uint32_t g = 2; g <= limit; ++g) {
+	uint32_t limit = mod > max ? max : (uint32_t)mod;
+	for (uint32_t g = min; g <= limit; ++g) {
 		// 4 is not a root for any prime
-		if (4 == g) continue;
+		if (g < 2 || 4 == g) continue;
 		if (factor64 > 1 && power_mod_u64(g, phi / factor64, mod) == 1) continue;
 		for (int i = 0; i < factors_count; ++i) {
 			if (power_mod_u64(g, phi / factors32[i], mod) == 1) goto do_continue;
 		}
+		#ifdef DEBUG_FACTORS
+		printf("chosen root g is %u\n", g);
+		#endif
 		return g;
 		do_continue:;
 	}
