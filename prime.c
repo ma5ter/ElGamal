@@ -160,40 +160,40 @@ int is_probable_prime_u64(const uint64_t x) {
 	}
 
 	// deterministic variant
-	// if n < 341,550,071,728,321, it is enough to test a = 2, 3, 5, 7, 11, 13, and 17.
+	// if n < 341,550,071,728,321, it is enough to test a = 2, 3, 5, 7, 11, 13, and 17
 	if (x >= 3474749660383ull) {
 		return miller_rabin(x, 2, d, r) && miller_rabin(x, 3, d, r) \
 			&& miller_rabin(x, 5, d, r) && miller_rabin(x, 7, d, r) \
 			&& miller_rabin(x, 11, d, r) &&	miller_rabin(x, 13, d, r) \
 			&& miller_rabin(x, 17, d, r);
 	}
-	// if n < 3,474,749,660,383, it is enough to test a = 2, 3, 5, 7, 11, and 13;
+	// if 2,152,302,898,747 <= n < 3,474,749,660,383, it is enough to test a = 2, 3, 5, 7, 11, and 13
 	if (x >= 2152302898747ull) {
 		return miller_rabin(x, 2, d, r) && miller_rabin(x, 3, d, r) \
 			&& miller_rabin(x, 5, d, r) && miller_rabin(x, 7, d, r) \
 			&& miller_rabin(x, 11, d, r) && miller_rabin(x, 13, d, r);
 	}
-	// if n < 2,152,302,898,747, it is enough to test a = 2, 3, 5, 7, and 11;
+	// if 1,122,004,669,633 <= n < 2,152,302,898,747, it is enough to test a = 2, 3, 5, 7, and 11
 	if (x >= 1122004669633ull) {
 		return miller_rabin(x, 2, d, r) && miller_rabin(x, 3, d, r) \
 			&& miller_rabin(x, 5, d, r) && miller_rabin(x, 7, d, r) \
 			&& miller_rabin(x, 11, d, r);
 	}
-	// if n < 1,122,004,669,633, it is enough to test a = 2, 13, 23, and 1662803;
+	// if 4,759,123,141 <= n < 1,122,004,669,633, it is enough to test a = 2, 13, 23, and 1662803
 	if (x >= 4759123141ull) {
 		return miller_rabin(x, 2, d, r) && miller_rabin(x, 13, d, r) \
 		&& miller_rabin(x, 23, d, r) && miller_rabin(x, 1662803, d, r);
 	}
-	// if n < 4,759,123,141, it is enough to test a = 2, 7, and 61;
+	// if 9,080,191 <= n < 4,759,123,141, it is enough to test a = 2, 7, and 61
 	if (x >= 9080191ull) {
 		return miller_rabin(x, 2, d, r) && miller_rabin(x, 7, d, r) \
 		&& miller_rabin(x, 61, d, r);
 	}
-	// if n < 9,080,191, it is enough to test a = 31 and 73;
+	// if 1,373,653 <= n < 9,080,191, it is enough to test a = 31 and 73
 	if (x >= 1373653ull) {
 		return miller_rabin(x, 31, d, r) && miller_rabin(x, 73, d, r);
 	}
-	// if n < 1,373,653, it is enough to test a = 2 and 3;
+	// if n < 1,373,653, it is enough to test a = 2 and 3
 	return miller_rabin(x, 2, d, r) && miller_rabin(x, 3, d, r);
 }
 

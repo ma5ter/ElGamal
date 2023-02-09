@@ -35,7 +35,7 @@ void elgamal_encrypt(uint64_t p, uint32_t g, uint64_t y, uint64_t message, uint6
 /// \param p - prime number
 /// \param x - private key
 /// \param in - encrypted input
-/// \return - message
+/// \return decrypted message
 uint64_t elgamal_decrypt(uint64_t p, uint64_t x, uint64_t *in);
 
 #endif
