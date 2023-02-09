@@ -34,8 +34,8 @@ int main() {
 	// printf("x = %llu (0x%016llX)\n", x, x);
 	// printf("prime = %d\n", is_prime_u64(x));
 
-	// printf("%u\n", prime_primitive_root(157));
-	// printf("%u\n", prime_primitive_root(x));
+	// printf("%u\n", prime_find_primitive_root_u64(157));
+	// printf("%u\n", prime_find_primitive_root_u64(x));
 
 	elgamal_keys_t keys;
 	elgamal_keygen(&keys, 32, random64);

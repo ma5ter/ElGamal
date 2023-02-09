@@ -1,6 +1,6 @@
 #include "prime.h"
 
-// #define DEBUG_FACTORS
+#define DEBUG_FACTORS
 #ifdef DEBUG_FACTORS
 #include <stdio.h>
 #endif
@@ -57,40 +57,53 @@ uint64_t power_mod_u64(uint64_t base, uint64_t exp, const uint64_t mod) {
 	return result;
 }
 
-uint32_t prime_primitive_root(uint64_t mod) {
-	// the only even prime has root of 1
-	if (2 == mod) return 1;
-	// if mod is prime then Euler's totient function s = p - 1
-	const uint64_t phi = mod - 1;
-	uint32_t limit = sqrt_u64(phi);
-	uint64_t n = phi;
-	int prime_factors_count = 0;
-	#define prime_factors_max 10
-	uint32_t prime_factors[prime_factors_max];
+size_t find_prime_factors_u64(uint64_t x, uint64_t *last_factor, uint32_t *factors, const size_t factors_max) {
+	const uint32_t limit = sqrt_u64(x);
+	size_t factors_found = 0;
 
-	for (uint32_t i = 2; i && i <= limit; ++i) {
-		if (0 == n % i) {
-			if (prime_factors_count >= prime_factors_max) return 0;
-			prime_factors[prime_factors_count++] = i;
+	for (uint32_t i = 2; x > 1 && i && i <= limit; ++i) {
+		if (0 == x % i) {
+			if (factors_found >= factors_max) return 0;
+			factors[factors_found++] = i;
+			// skip factor powers
+			do x /= i; while (0 == x % i);
 			#ifdef DEBUG_FACTORS
-			printf("factor %u is %u\n", prime_factors_count, i);
+			printf("factor %zu is %u\n", factors_found, i);
+			if (1 == x) printf("all factors found in %u cycles within 32-bit integers\n", i);
 			#endif
-			do n /= i; while (0 == n % i);
 		}
 	}
 
 	#ifdef DEBUG_FACTORS
-	if (n > 1) printf("factor %u is %llu\n", prime_factors_count + 1, n);
+	if (x > 1) printf("last 64-bit factor %llu is %llu\n", factors_found + 1, x);
 	#endif
 
-	// limit 32-bitters only
-	limit = mod > UINT32_MAX ? UINT32_MAX : (uint32_t)mod;
+	*last_factor = x;
+	return factors_found;
+}
+
+uint32_t prime_find_primitive_root_u64(uint64_t mod) {
+	// the only even prime has root of 1
+	if (2 == mod) return 1;
+
+	// if number is prime then Euler's totient function phi = p - 1
+	const uint64_t phi = mod - 1;
+
+	// first get all the prime factors of phi
+	#define factors_max 10
+	uint64_t factor64;
+	uint32_t factors32[factors_max];
+	size_t factors_count = find_prime_factors_u64(phi, &factor64, factors32, factors_max);
+
+	// then check all possible roots starting from 2 and excluding 4
+	// limit counter to 32-bitter for speed on 32-bit platforms
+	uint32_t limit = mod > UINT32_MAX ? UINT32_MAX : (uint32_t)mod;
 	for (uint32_t g = 2; g <= limit; ++g) {
 		// 4 is not a root for any prime
 		if (4 == g) continue;
-		if (n > 1 && power_mod_u64(g, phi / n, mod) == 1) continue;
-		for (int i = 0; i < prime_factors_count; ++i) {
-			if (power_mod_u64(g, phi / prime_factors[i], mod) == 1) goto do_continue;
+		if (factor64 > 1 && power_mod_u64(g, phi / factor64, mod) == 1) continue;
+		for (int i = 0; i < factors_count; ++i) {
+			if (power_mod_u64(g, phi / factors32[i], mod) == 1) goto do_continue;
 		}
 		return g;
 		do_continue:;
