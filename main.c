@@ -45,7 +45,28 @@ int main() {
 	elgamal_encrypt(keys.p, keys.g, keys.y, m, buf, random64);
 	m = elgamal_decrypt(keys.p, keys.x, buf);
 
-	printf("m = %llu", m);
+	printf("m = %llu\n", m);
+
+	printf("trying to crack x using brute-force\n");
+	const uint64_t p = keys.p;
+	const uint64_t g = keys.g;
+	const uint64_t y = keys.y;
+	uint64_t x = 0;
+
+	time_t b;
+	time(&b);
+
+	do {
+		// y = g^x mod p
+		if (y == power_mod_u64(g, x, p)) {
+			printf("found x which is %llu, time is %lld seconds\n", x, time(NULL) - b);
+			break;
+		}
+		#define M1 1000000
+		if (0 == x % M1) {
+			printf("checkpoint %lluM, %0.3f%%, time is %lld seconds\n", x / M1, (double)x / ((double)UINT64_MAX / 100.), time(NULL) - b);
+		}
+	} while (++x);
 
 	return 0;
 }
