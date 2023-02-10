@@ -162,12 +162,42 @@ int is_probable_prime_u64(const uint64_t x) {
 		d >>= 1;
 	}
 
-	// deterministic variant
-	// if n < 341,550,071,728,321, it is enough to test a = 2, 3, 5, 7, 11, 13, and 17
+	#ifndef USE_MILLER_RABIN_WIKI_DETERMINISTIC_BASES_VARIANT
+	// https://miller-rabin.appspot.com/
+
+	// at least 2^64 -- 2, 325, 9375, 28178, 450775, 9780504, 1795265022
+	return miller_rabin(x, 2, d, r) \
+			&& miller_rabin(x, 325, d, r) \
+			&& miller_rabin(x, 9375, d, r) \
+			&& miller_rabin(x, 28178, d, r) \
+			&& miller_rabin(x, 450775, d, r) \
+			&& miller_rabin(x, 9780504, d, r) \
+			&& miller_rabin(x, 1795265022, d, r);
+	#else
+	// https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test#Deterministic_variants_of_the_test
+
+	// if 3,825,123,056,546,413,051 <= n < 18,446,744,073,709,551,616 = 2^64, it is enough to test a = 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, and 37
+	if (x >= 3825123056546413051ull) {
+		return miller_rabin(x, 2, d, r) && miller_rabin(x, 3, d, r) \
+			&& miller_rabin(x, 5, d, r) && miller_rabin(x, 7, d, r) \
+			&& miller_rabin(x, 11, d, r) && miller_rabin(x, 13, d, r) \
+			&& miller_rabin(x, 17, d, r) && miller_rabin(x, 19, d, r) \
+			&& miller_rabin(x, 23, d, r) && miller_rabin(x, 29, d, r) \
+			&& miller_rabin(x, 31, d, r) && miller_rabin(x, 37, d, r);
+	}
+	// if 341,550,071,728,321 <= n < 3,825,123,056,546,413,051, it is enough to test a = 2, 3, 5, 7, 11, 13, 17, 19, and 23
+	if (x >= 341550071728321ull) {
+		return miller_rabin(x, 2, d, r) && miller_rabin(x, 3, d, r) \
+			&& miller_rabin(x, 5, d, r) && miller_rabin(x, 7, d, r) \
+			&& miller_rabin(x, 11, d, r) && miller_rabin(x, 13, d, r) \
+			&& miller_rabin(x, 17, d, r) && miller_rabin(x, 19, d, r) \
+			&& miller_rabin(x, 23, d, r);
+	}
+	// if 3,474,749,660,383 <= n < 341,550,071,728,321, it is enough to test a = 2, 3, 5, 7, 11, 13, and 17
 	if (x >= 3474749660383ull) {
 		return miller_rabin(x, 2, d, r) && miller_rabin(x, 3, d, r) \
 			&& miller_rabin(x, 5, d, r) && miller_rabin(x, 7, d, r) \
-			&& miller_rabin(x, 11, d, r) &&	miller_rabin(x, 13, d, r) \
+			&& miller_rabin(x, 11, d, r) && miller_rabin(x, 13, d, r) \
 			&& miller_rabin(x, 17, d, r);
 	}
 	// if 2,152,302,898,747 <= n < 3,474,749,660,383, it is enough to test a = 2, 3, 5, 7, 11, and 13
@@ -196,14 +226,16 @@ int is_probable_prime_u64(const uint64_t x) {
 	if (x >= 1373653ull) {
 		return miller_rabin(x, 31, d, r) && miller_rabin(x, 73, d, r);
 	}
-	// if n < 1,373,653, it is enough to test a = 2 and 3
+	// if 2,047 <= n < 1,373,653, it is enough to test a = 2 and 3
 	return miller_rabin(x, 2, d, r) && miller_rabin(x, 3, d, r);
+	// if n < 2,047, it is enough to test a = 2
+	#endif
 }
 
 uint64_t random_prime_u64(int higher, uint64_t (*random64)(void)) {
 	if (higher > 56) higher = 56;
 
-	uint64_t mask = (((1ull << higher) - 1) << (64 - higher)) | 1;
+	uint64_t mask = (0xFFFFFFFFFFFFFFFF & ~((1ull << (64 - higher)) - 1)) | 1;
 	uint64_t result = random64() | mask;
 
 	// find next prime number
