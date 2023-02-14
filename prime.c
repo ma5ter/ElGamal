@@ -61,7 +61,17 @@ size_t find_prime_factors_u64(uint64_t x, uint64_t *last_factor, uint32_t *facto
 	const uint32_t limit = sqrt_u64(x);
 	size_t factors_found = 0;
 
-	for (uint32_t i = 2; x > 1 && i && i <= limit; ++i) {
+	// check if the only even prime 2 is a divider
+	if (0 == (x & 1)) {
+		factors[factors_found++] = 2;
+		do x >>= 1; while (0 == (x & 1));
+		#ifdef DEBUG_FACTORS
+		printf("factor 1 is 2\n");
+		#endif
+	}
+
+	// check odd primes starting from 3
+	for (uint32_t i = 3; x > 1 && i > 2 && i <= limit; i += 2) {
 		if (0 == x % i) {
 			if (factors_found >= factors_max) return 0;
 			factors[factors_found++] = i;
