@@ -8,9 +8,13 @@ void elgamal_keygen(elgamal_keys_t *keys, int higher, uint64_t (*random64)(void)
 			// large prime number p
 			keys->p = random_prime_u64(higher, random64);
 
+			#ifdef ELGAMAL_G_2
+			keys->g = 2;
+			#else
 			// primitive root g modulo p
 			// using other than minimal primitive root
 			keys->g = prime_find_primitive_root_u64(keys->p, random64() & 0xFFF0, 0xFFFF);
+			#endif
 		} while (!keys->g);
 	}
 
