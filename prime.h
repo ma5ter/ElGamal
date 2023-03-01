@@ -2,6 +2,7 @@
 #define PRIME_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include <math.h>
 
 /// An integer helper to the square root that deals higher bit output relaxed

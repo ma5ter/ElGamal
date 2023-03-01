@@ -1,6 +1,6 @@
 #include "prime.h"
 
-#define DEBUG_FACTORS
+// #define DEBUG_FACTORS
 #ifdef DEBUG_FACTORS
 #include <stdio.h>
 #endif
